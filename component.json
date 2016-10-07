@@ -1,0 +1,11 @@
+{
+    "name": "vehicle-model-service",
+    "description": "vehicle-model-service component",
+    "local": [],
+    "scripts": ["index.js"],
+    "main": "index.js",
+    "dependencies": {
+        "serandomps/utils": "master",
+        "serandomps/serand": "master"
+    }
+}
