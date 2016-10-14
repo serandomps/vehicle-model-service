@@ -1,47 +1,54 @@
 var utils = require('utils');
 var serand = require('serand');
 
+var makes = {};
 var models = {};
 
+var process = function (data, done) {
+    data.forEach(function (model) {
+        models[model.id] = model;
+        var o = makes[model.make] || (makes[model.make] = []);
+        o.push(model);
+    });
+    done();
+};
+
+var find = function (done) {
+    utils.sync('vehicle-model-service:find', function (ran) {
+        $.ajax({
+            method: 'GET',
+            url: utils.resolve('autos://apis/v/vehicle-models'),
+            dataType: 'json',
+            success: function (data) {
+                process(data, ran);
+            },
+            error: function () {
+                ran(new Error('error retrieving vehicle-models'));
+            }
+        });
+    }, done);
+};
+
 exports.findOne = function (id, done) {
-    $.ajax({
-        method: 'GET',
-        url: utils.resolve('autos://apis/v/vehicle-models/' + id),
-        dataType: 'json',
-        success: function (make) {
-            done(null, make);
-        },
-        error: function () {
-            done(new Error('error retrieving vehicle-models ' + id));
+    if (models[id]) {
+        return done(null, models[id]);
+    }
+    find(function (err) {
+        if (err) {
+            return done(err);
         }
+        done(null, models[id]);
     });
 };
 
 exports.find = function (make, done) {
-    if (!make) {
-        return done(null, []);
+    if (makes[make]) {
+        return done(null, makes[make]);
     }
-    if (models[make]) {
-        return done(null, models[make]);
-    }
-    var data = JSON.stringify({
-        criteria: {
-            make: make
+    find(function (err) {
+        if (err) {
+            return done(err);
         }
-    });
-    $.ajax({
-        method: 'GET',
-        url: utils.resolve('autos://apis/v/vehicle-models'),
-        dataType: 'json',
-        data: {
-            data: data
-        },
-        success: function (data) {
-            models[make] = data;
-            done(null, data);
-        },
-        error: function () {
-            done(new Error('error retrieving vehicle-models'));
-        }
+        done(null, makes[make]);
     });
 };
