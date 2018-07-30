@@ -22,8 +22,8 @@ var find = function (done) {
             success: function (data) {
                 process(data, ran);
             },
-            error: function () {
-                ran(new Error('error retrieving vehicle-models'));
+            error: function (xhr, status, err) {
+                ran(err || status || xhr);
             }
         });
     }, done);
