@@ -17,7 +17,7 @@ var find = function (done) {
     utils.sync('vehicle-models-service:find', function (ran) {
         $.ajax({
             method: 'GET',
-            url: utils.resolve('autos://apis/v/vehicle-models'),
+            url: utils.resolve('autos:///apis/v/vehicle-models'),
             dataType: 'json',
             success: function (data) {
                 process(data, ran);
